@@ -4,16 +4,16 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"github.com/aliskhannn/minishell/internal/shell"
 	"io"
 	"log"
 	"os"
 	"os/user"
 	"strings"
-
-	"github.com/aliskhannn/minishell/internal/shell"
 )
 
 func main() {
+	sh := shell.New()
 	reader := bufio.NewReader(os.Stdin)
 
 	u, err := user.Current()
@@ -45,7 +45,7 @@ func main() {
 		line, err := reader.ReadString('\n')
 		if err != nil {
 			if errors.Is(err, io.EOF) {
-				// End of file reached, exit the loop
+				// End of a file reached, exit the loop
 				return
 			}
 
@@ -58,25 +58,8 @@ func main() {
 			continue
 		}
 
-		parts := strings.Fields(line)
-
-		if len(parts) > 0 {
-			if parts[0] == "pwd" {
-				dir, err := os.Getwd()
-				if err != nil {
-					_, _ = fmt.Fprintln(os.Stderr, "error getting current directory:", err)
-					continue
-				}
-
-				fmt.Println(dir)
-			} else if parts[0] == "cd" {
-				args := parts[1:]
-				err := shell.BuiltinCD(args)
-				if err != nil {
-					_, _ = fmt.Fprintln(os.Stderr, err)
-					continue
-				}
-			}
+		if err := sh.ExecuteLine(line); err != nil {
+			_, _ = fmt.Fprintln(os.Stderr, "shell:", err)
 		}
 	}
 }

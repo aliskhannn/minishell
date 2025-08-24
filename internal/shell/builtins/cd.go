@@ -1,4 +1,4 @@
-package shell
+package builtins
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ var ErrTooManyArguments = fmt.Errorf("too many arguments")
 
 // BuiltinCD implements the "cd" command for changing directories.
 // Returns an error if more than one argument is provided or if the directory change fails.
-func BuiltinCD(args []string) error {
+func builtinCD(args []string) error {
 	if len(args) > 1 {
 		return ErrTooManyArguments
 	}
@@ -117,9 +117,10 @@ func chdirToHome() error {
 	return nil
 }
 
+// changeDir attempts to change the current working directory to the specified path.
 func changeDir(path string) error {
 	if err := os.Chdir(path); err != nil {
-		msg := strings.Replace(err.Error(), "chdir ", "", 1) // Remove "chdir " prefix if present
+		msg := strings.Replace(err.Error(), "chdir ", "", 1) // Remove "chdir" prefix if present
 		return fmt.Errorf("%s", msg)
 	}
 
