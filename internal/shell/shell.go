@@ -1,7 +1,7 @@
 package shell
 
 import (
-	"github.com/aliskhannn/minishell/internal/shell/builtins"
+	"github.com/aliskhannn/minishell/internal/builtins"
 	"strings"
 )
 

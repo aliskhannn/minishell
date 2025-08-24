@@ -2,7 +2,7 @@ package builtins
 
 import (
 	"fmt"
-	"os"
+	"github.com/aliskhannn/minishell/internal/utils"
 	"strings"
 )
 
@@ -51,8 +51,8 @@ func builtinEcho(args []string) error {
 		args = strings.Split(trimmed, " ")
 	}
 
-	argsStr := strings.Join(args, " ") // join arguments into a single string
-	expanded := expandEnv(argsStr)     // expand environment variables
+	argsStr := strings.Join(args, " ")   // join arguments into a single string
+	expanded := utils.ExpandEnv(argsStr) // expand environment variables
 
 	if flags.NoNewLine {
 		fmt.Print(expanded)
@@ -144,14 +144,4 @@ func unescape(s string, quoted bool) string {
 		`\'`, "'",
 	)
 	return replacer.Replace(s)
-}
-
-func expandEnv(s string) string {
-	return os.Expand(s, func(key string) string {
-		if val, ok := os.LookupEnv(key); ok {
-			return val
-		}
-
-		return ""
-	})
 }

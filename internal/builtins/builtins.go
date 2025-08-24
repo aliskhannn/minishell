@@ -12,6 +12,10 @@ func Run(argv []string) error {
 		return buildinPWD()
 	case "echo":
 		return builtinEcho(argv[1:])
+	case "ps":
+		return builtinPs()
+	case "kill":
+		return builtinKill(argv[1:])
 	default:
 		return nil
 	}
