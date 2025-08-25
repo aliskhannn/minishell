@@ -6,6 +6,30 @@ This shell is implemented as a Go program and can be run interactively or via sc
 
 ---
 
+## Project sctructure
+
+```
+minishell/
+├── cmd/minishell            # Main program: starts the minishell loop
+├── integration_test/        # Integration tests that check shell behavior
+├── internal/                
+│   └── shell/               
+│       ├── builtins.go      
+│       ├── cd.go            # Implementation of `cd`
+│       ├── echo.go          # Implementation of `echo`
+│       ├── exec.go          # Command execution
+│       ├── kill.go          # Implementation of `kill`
+│       ├── parse.go         # Parsing logic (pipelines, conditionals, redirects)
+│       ├── ps.go            # Implementation of `ps`
+│       ├── pwd.go           # Implementation of `pwd`
+│       ├── shell.go         # Main REPL loop, signal handling, prompt rendering
+│       └── utils.go         # Helper functions
+├── Makefile                 # Build, run, test commands
+├── go.mod                   # Go module definition
+└── README.md                # Documentation
+
+```
+
 ## Features
 
 ### Built-in Commands

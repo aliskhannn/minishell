@@ -106,7 +106,7 @@ func indexOfCondOp(tokens []string) int {
 }
 
 // parseConditional parses tokens into a Pipeline, handling conditional operators (&& and ||).
-// It recursively splits tokens at the first conditional operator and builds linked Pipelines.
+// It splits tokens at conditional operators and iteratively builds a linked chain of Pipelines.
 func parseConditional(tokens []string) (*Pipeline, error) {
 	if len(tokens) == 0 {
 		return nil, fmt.Errorf("empty command")
