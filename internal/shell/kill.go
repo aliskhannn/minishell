@@ -1,4 +1,4 @@
-package builtins
+package shell
 
 import (
 	"fmt"
@@ -6,6 +6,9 @@ import (
 	"syscall"
 )
 
+// builtinKill sends a SIGTERM signal to the process with the given PID.
+// It validates arguments, parses the PID, and delegates the actual signal
+// sending to syscallKill.
 func builtinKill(args []string) error {
 	if len(args) < 1 {
 		return fmt.Errorf("kill: missed PID")
@@ -23,6 +26,8 @@ func builtinKill(args []string) error {
 	return nil
 }
 
+// syscallKill sends a SIGTERM signal to the process with the given PID.
+// It uses the low-level syscall.Kill function.
 func syscallKill(pid int) error {
 	return syscall.Kill(pid, syscall.SIGTERM)
 }

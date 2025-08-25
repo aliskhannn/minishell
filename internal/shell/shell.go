@@ -1,10 +1,5 @@
 package shell
 
-import (
-	"github.com/aliskhannn/minishell/internal/builtins"
-	"strings"
-)
-
 type Shell struct {
 }
 
@@ -12,8 +7,16 @@ func New() *Shell {
 	return &Shell{}
 }
 
+// ExecuteLine parses a single line of shell input and executes it.
+// It first converts the line into a Pipeline (commands, pipes, conditionals)
+// and then runs the pipeline.
 func (s *Shell) ExecuteLine(line string) error {
-	argv := strings.Fields(line)
+	// Parse the line into a Pipeline structure.
+	p, err := Parse(line)
+	if err != nil {
+		return err
+	}
 
-	return builtins.Run(argv)
+	// Execute the parsed pipeline.
+	return s.Run(p)
 }

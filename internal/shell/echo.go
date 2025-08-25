@@ -1,17 +1,25 @@
-package builtins
+package shell
 
 import (
 	"fmt"
-	"github.com/aliskhannn/minishell/internal/utils"
+	"io"
+	"os"
 	"strings"
 )
 
+// echoFlags represents the set of supported flags for the built-in `echo` command.
+// -e: enable interpretation of escape sequences
+// -n: suppress the trailing newline.
 type echoFlags struct {
 	Escape    bool
 	NoNewLine bool
 }
 
-func builtinEcho(args []string) error {
+// builtinEcho implements the behavior of the built-in `echo` command.
+// It handles flags (-e, -n), escape sequences, single/double quotes, and
+// environment variable expansion. If an output file is specified, the result
+// is written there instead of stdout.
+func builtinEcho(args []string, output string) error {
 	// If no arguments are provided, print a newline and return.
 	if len(args) == 0 {
 		fmt.Println()
@@ -26,6 +34,7 @@ func builtinEcho(args []string) error {
 	doubleQuoted := strings.HasPrefix(args[0], "\"") && strings.HasSuffix(args[len(args)-1], "\"")
 	quoted := singleQuoted || doubleQuoted
 
+	// Handle escape sequences if -e is set.
 	if flags.Escape && len(args) > 0 {
 		argsStr := strings.Join(args, " ")     // join arguments into a single string
 		unescaped := unescape(argsStr, quoted) // unescape the escape sequences
@@ -51,19 +60,36 @@ func builtinEcho(args []string) error {
 		args = strings.Split(trimmed, " ")
 	}
 
-	argsStr := strings.Join(args, " ")   // join arguments into a single string
-	expanded := utils.ExpandEnv(argsStr) // expand environment variables
+	argsStr := strings.Join(args, " ") // join arguments into a single string
+	expanded := ExpandEnv(argsStr)     // expand environment variables
 
+	// Handle -n flag (suppress newline).
 	if flags.NoNewLine {
 		fmt.Print(expanded)
 		return nil
 	}
 
-	fmt.Println(expanded) // print the final result
+	// Determine output writer (stdout or a file if redirection is specified).
+	var out io.Writer = os.Stdout
+
+	if output != "" {
+		f, err := os.Create(output)
+		if err != nil {
+			return err
+		}
+		defer func() {
+			_ = f.Close()
+		}()
+		out = f
+	}
+
+	_, _ = fmt.Fprintln(out, expanded) // print the final result
 
 	return nil
 }
 
+// parseFlags parses supported echo flags (-e, -n) from the arguments
+// and returns both the parsed flags and the remaining arguments.
 func parseFlags(args []string) (echoFlags, []string) {
 	var flags echoFlags
 	var rest []string
@@ -111,6 +137,9 @@ func parseFlags(args []string) (echoFlags, []string) {
 	return flags, rest
 }
 
+// unescape interprets escape sequences in a string, depending on quoting rules.
+// - If not quoted: backslashes are simply removed (e.g., "\ " → " ").
+// - If quoted: standard escape sequences like \n, \t, \r are converted to actual characters.
 func unescape(s string, quoted bool) string {
 	//If not quoted, just remove backslashes.
 	if !quoted {
